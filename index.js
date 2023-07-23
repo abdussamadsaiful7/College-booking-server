@@ -29,12 +29,13 @@ const client = new MongoClient(uri, {
 async function run() {
     try {
         // Connect the client to the server	(optional starting in v4.7)
-       // await client.connect();
+        // await client.connect();
 
-       const collegeCollection = client.db('eduPlusDB').collection('colleges');
-       const reviewCollection = client.db('eduPlusDB').collection('reviews');
+        const collegeCollection = client.db('eduPlusDB').collection('colleges');
+        const reviewCollection = client.db('eduPlusDB').collection('reviews');
+        const userCollection = client.db('eduPlusDB').collection('users');
 
-        app.get('/colleges', async(req, res)=>{
+        app.get('/colleges', async (req, res) => {
             const cursor = collegeCollection.find();
             const result = await cursor.toArray();
             res.send(result);
@@ -48,15 +49,32 @@ async function run() {
 
         })
 
-        app.get('/reviews', async(req, res)=>{
+        app.get('/reviews', async (req, res) => {
             const cursor = reviewCollection.find();
             const result = await cursor.toArray();
             res.send(result);
         })
 
-        app.post('/reviews', async(req, res)=>{
+        app.post('/reviews', async (req, res) => {
             const newReview = req.body;
             const result = await reviewCollection.insertOne(newReview);
+            res.send(result);
+        })
+
+        //users api
+        app.get('/users', async (req, res) => {
+            const result = await userCollection.find().toArray();
+            res.send(result);
+        })
+
+        app.post('/users', async (req, res) => {
+            const user = req.body;
+            const query = { email: user.email }
+            const existingUser = await userCollection.findOne(query);
+            if (existingUser) {
+                return res.send({ message: 'user already exists' })
+            }
+            const result = await userCollection.insertOne(user);
             res.send(result);
         })
 
@@ -71,7 +89,7 @@ async function run() {
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
     } finally {
         // Ensures that the client will close when you finish/error
-       // await client.close();
+        // await client.close();
     }
 }
 run().catch(console.dir);
