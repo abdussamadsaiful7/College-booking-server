@@ -34,6 +34,7 @@ async function run() {
         const collegeCollection = client.db('eduPlusDB').collection('colleges');
         const reviewCollection = client.db('eduPlusDB').collection('reviews');
         const userCollection = client.db('eduPlusDB').collection('users');
+        const myCollegeCollection = client.db('eduPlusDB').collection('myCollege');
 
         app.get('/colleges', async (req, res) => {
             const cursor = collegeCollection.find();
@@ -77,6 +78,19 @@ async function run() {
             const result = await userCollection.insertOne(user);
             res.send(result);
         })
+
+        //myCollege
+        app.get('/myCollege', async (req, res) => {
+            const result = await myCollegeCollection.find().toArray();
+            res.send(result);
+        })
+
+        app.post('/myCollege', async (req, res) => {
+            const newReview = req.body;
+            const result = await myCollegeCollection.insertOne(newReview);
+            res.send(result);
+        })
+
 
 
 
